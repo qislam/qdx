@@ -28,10 +28,13 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`qdx hello`](#qdx-hello)
+* [`qdx data`](#qdx-data)
+* [`qdx deploy`](#qdx-deploy)
+* [`qdx hello NAME`](#qdx-hello-name)
 * [`qdx help [COMMAND]`](#qdx-help-command)
+* [`qdx package`](#qdx-package)
 
-## `qdx hello`
+## `qdx data`
 
 ```
 Describe the command here
@@ -40,10 +43,49 @@ Extra documentation goes here
 
 
 USAGE
-  $ qdx hello
+  $ qdx data
 
 OPTIONS
   -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/data.js)_
+
+## `qdx deploy`
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx deploy
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/deploy.js)_
+
+## `qdx hello NAME`
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx hello NAME
 
 DESCRIPTION
   ...
@@ -68,4 +110,25 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
+
+## `qdx package`
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx package
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/package.js)_
 <!-- commandsstop -->
