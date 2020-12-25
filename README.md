@@ -30,9 +30,10 @@ USAGE
 <!-- commands -->
 * [`qdx data`](#qdx-data)
 * [`qdx deploy`](#qdx-deploy)
-* [`qdx hello NAME`](#qdx-hello-name)
 * [`qdx help [COMMAND]`](#qdx-help-command)
+* [`qdx metapackage`](#qdx-metapackage)
 * [`qdx package`](#qdx-package)
+* [`qdx puppeteer`](#qdx-puppeteer)
 
 ## `qdx data`
 
@@ -76,24 +77,6 @@ DESCRIPTION
 
 _See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/deploy.js)_
 
-## `qdx hello NAME`
-
-```
-Describe the command here
-...
-Extra documentation goes here
-
-
-USAGE
-  $ qdx hello NAME
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/hello.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/hello.js)_
-
 ## `qdx help [COMMAND]`
 
 ```
@@ -110,6 +93,27 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
+
+## `qdx metapackage`
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx metapackage
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/metapackage.js)_
 
 ## `qdx package`
 
@@ -131,4 +135,25 @@ DESCRIPTION
 ```
 
 _See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/package.js)_
+
+## `qdx puppeteer`
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx puppeteer
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/puppeteer.js)_
 <!-- commandsstop -->

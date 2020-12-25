@@ -1,4 +1,5 @@
 const {Command, flags} = require('@oclif/command')
+const puppeteer = require('puppeteer')
 
 class DeployCommand extends Command {
   async run() {
