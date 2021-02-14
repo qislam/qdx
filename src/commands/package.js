@@ -10,6 +10,9 @@ const xmljs = require('xml-js')
 const execa = require('execa')
 const _ = require('lodash')
 
+const {getType} = require('../utils/metadata-coverage')
+const {yaml2xml} = require('../utils/convert')
+
 class PackageCommand extends Command {
   async run() {
     const {flags, args} = this.parse(PackageCommand)
@@ -17,26 +20,80 @@ class PackageCommand extends Command {
     debug('flags: ' + JSON.stringify(flags, null, 4))
     cli.action.start('Started on package ' + args.packageName)
 
-    if (flags.start || !fs.existsSync(`manifest/${args.packageName.replace('/', '-')}.yml`)) {
+    const yamlPath = `manifest/${args.packageName.replace('/', '-')}.yml`
+    const projectPath = flags.projectPath || 'force-app/main/default'
+    debug('projectPath: ' + projectPath)
+    const apiVersion = flags.version || '50.0'
+
+    if (flags.start || !fs.existsSync(yamlPath)) {
       if (!fs.existsSync('manifest')) {
         debug('Creating manifest dir')
         fs.mkdirSync('manifest')
       }
       debug('Starting blank package YAML file.')
       fs.writeFileSync(
-        `manifest/${args.packageName.replace('/', '-')}.yml`,
-        YAML.stringify({Version: flags.version || '50.0'}),
+        yamlPath,
+        YAML.stringify({Version: apiVersion}),
         {encoding: 'utf-8'}
       )
     }
+
+    const yamlBody = YAML.parse(fs.readFileSync(yamlPath, 'utf-8')) || {}
+    debug('yamlBody: \n' + JSON.stringify(yamlBody, null, 4))
 
     if (flags.diff) {
       if (!args.commit1 || !args.commit2) {
         cli.action.stop('Commit hashes are required with diff flag.')
       }
-      const diffFiles = await execa('git', ['diff', '--name-only', args.commit1, args.commit2])
-      debug('diffFiles: \n' + JSON.stringify(diffFiles, null, 4))
+      const diffResult = await execa('git', ['diff', '--name-only', args.commit1, args.commit2])
+      debug('diffResult: \n' + JSON.stringify(diffResult, null, 4))
+      const diffPaths = diffResult.stdout.split('\n')
+      debug('diffPaths: \n' + JSON.stringify(diffPaths, null, 4))
+
+      for (let filePath of diffPaths) {
+        if (!filePath.startsWith(projectPath)) continue
+        let pathParts = filePath.replace(projectPath + '/', '').split('/')
+
+        const folder = pathParts.shift()
+        const metadataName = pathParts.pop().replace(/\.[\w]+$|\.[\w]+-meta\.xml$/, '')
+        debug('metadataName: ' + metadataName)
+
+        const metadataType = getType(folder) || folder
+        debug('metadataType: ' + JSON.stringify(metadataType, null, 4))
+
+        if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+        yamlBody[metadataType].push(metadataName)
+      }
+
+      debug('yamlBody: ' + JSON.stringify(yamlBody, null, 4))
     }
+
+    for (let key in yamlBody) {
+      if (key === 'ManualSteps' || key === 'Version') continue
+      yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
+      yamlBody[key].sort()
+    }
+
+    fs.writeFileSync(
+      yamlPath,
+      YAML.stringify(yamlBody),
+      {encoding: 'utf-8'}
+    )
+
+    let xmlBody = yaml2xml(yamlBody, apiVersion)
+    let xmlOptions = {
+      spaces: 4,
+      compact: false,
+      declerationKey: 'decleration',
+      attributesKey: 'attributes',
+    }
+    fs.writeFileSync(
+      yamlPath.replace(/yml$/i, 'xml'),
+      xmljs.js2xml(xmlBody, xmlOptions),
+      {encoding: 'utf-8'}
+    )
+
+    cli.action.stop('completed processing')
   }
 }
 
@@ -55,6 +112,7 @@ PackageCommand.flags = {
   version: flags.string({description: 'API version to use for SFDX'}),
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),
   deploy: flags.boolean({char: 'd', description: 'Deploys source already retrieved.'}),
+  projectPath: flags.boolean({description: 'Base path for the project code.'}),
   username: flags.string({char: 'u'}),
 }
 
