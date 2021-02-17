@@ -10,7 +10,7 @@ const xmljs = require('xml-js')
 const execa = require('execa')
 const _ = require('lodash')
 
-const {getType} = require('../utils/metadata-coverage')
+const {updateYaml} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
 
 class PackageCommand extends Command {
@@ -46,32 +46,12 @@ class PackageCommand extends Command {
         cli.action.stop('Commit hashes are required with diff flag.')
       }
       const diffResult = await execa('git', ['diff', '--name-only', args.commit1, args.commit2])
-      debug('diffResult: \n' + JSON.stringify(diffResult, null, 4))
       const diffPaths = diffResult.stdout.split('\n')
       debug('diffPaths: \n' + JSON.stringify(diffPaths, null, 4))
 
-      for (let filePath of diffPaths) {
-        if (!filePath.startsWith(projectPath)) continue
-        let pathParts = filePath.replace(projectPath + '/', '').split('/')
-
-        const folder = pathParts.shift()
-        const metadataName = pathParts.pop().replace(/\.[\w]+$|\.[\w]+-meta\.xml$/, '')
-        debug('metadataName: ' + metadataName)
-
-        const metadataType = getType(folder) || folder
-        debug('metadataType: ' + JSON.stringify(metadataType, null, 4))
-
-        if (!yamlBody[metadataType]) yamlBody[metadataType] = []
-        yamlBody[metadataType].push(metadataName)
-      }
+      updateYaml(diffPaths, yamlBody, projectPath)
 
       debug('yamlBody: ' + JSON.stringify(yamlBody, null, 4))
-    }
-
-    for (let key in yamlBody) {
-      if (key === 'ManualSteps' || key === 'Version') continue
-      yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
-      yamlBody[key].sort()
     }
 
     fs.writeFileSync(
