@@ -43,8 +43,7 @@ function updateYaml(filePathList, yamlBody, projectPath) {
       metadataType = 'DashboardFolder'
     }
 
-    debug('metadataName: ' + metadataName)
-    debug('metadataType: ' + JSON.stringify(metadataType, null, 4))
+    debug(metadataType + ':' + metadataName)
 
     if (!yamlBody[metadataType]) yamlBody[metadataType] = []
     yamlBody[metadataType].push(metadataName)
