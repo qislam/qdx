@@ -3,7 +3,7 @@ function yaml2xml(featureYAML, xmlVersion) {
     declaration: {
       attributes: {
         version: '1.0',
-        encoding: 'UTF-8'
+        encoding: 'UTF-8',
       }
     },
     elements: [
