@@ -11,6 +11,7 @@ const _ = require('lodash')
 
 const {updateYaml} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
+const {getAbsolutePath, getFiles} = require('../utils/util')
 
 class PackageCommand extends Command {
   async run() {
@@ -40,6 +41,25 @@ class PackageCommand extends Command {
     const yamlBody = YAML.parse(fs.readFileSync(yamlPath, 'utf-8')) || {}
     debug('yamlBody: \n' + JSON.stringify(yamlBody, null, 4))
 
+    if (flags.yaml) {
+      if (!flags.path) {
+        cli.action.stop('File not not provided. Must be relative to current directory')
+      }
+      if (!fs.existsSync(getAbsolutePath(flags.path))) {
+        cli.action.stop('File not found. Check file path. Must be relative to current directory')
+      }
+
+      const sourceYaml = YAML.parse(fs.readFileSync(flags.path, 'utf-8'))
+      for (let key in sourceYaml) {
+        if (key === 'Version') continue
+        if (yamlBody[key] === undefined) {
+          yamlBody[key] = sourceYaml[key]
+        } else {
+          yamlBody[key] = [...yamlBody[key], ...sourceYaml[key]]
+        }
+      }
+    }
+
     if (flags.diff) {
       if (!args.commit1 || !args.commit2) {
         cli.action.stop('Commit hashes are required with diff flag.')
@@ -47,11 +67,53 @@ class PackageCommand extends Command {
       const diffResult = await execa('git', ['diff', '--name-only', args.commit1, args.commit2])
       const diffPaths = diffResult.stdout.split('\n')
       debug('diffPaths: \n' + JSON.stringify(diffPaths, null, 4))
-
-      updateYaml(diffPaths, yamlBody, projectPath)
-
-      debug('yamlBody: ' + JSON.stringify(yamlBody, null, 4))
+      try {
+        updateYaml(diffPaths, yamlBody, projectPath)
+      } catch (error) {
+        cli.action.stop('Error: ' + error)
+      }
     }
+
+    if (flags.dir) {
+      debug('cwd: ' + process.cwd())
+      const filePaths = await getFiles(process.cwd())
+      debug('filePaths: \n' + JSON.stringify(filePaths, null, 4))
+      const fullProjectPath = path.join(process.cwd(), ...projectPath.split('/'))
+      debug('fullProjectPath: ' + fullProjectPath)
+      try {
+        updateYaml(filePaths, yamlBody, fullProjectPath)
+      } catch (error) {
+        cli.action.stop('Error: ' + error)
+      }
+    }
+
+    if (flags.csv) {
+      if (!flags.path) {
+        cli.action.stop('File not not provided. Must be relative to current directory')
+      }
+      if (!fs.existsSync(getAbsolutePath(flags.path))) {
+        cli.action.stop('File not found. Check file path. Must be relative to current directory')
+      }
+      let featureCSV = csvjson.toObject(fs.readFileSync(flags.path, 'utf-8'))
+      debug('featureCSV first record: ' + JSON.stringify(featureCSV[0], null, 4))
+
+      for (let metadataRecord of featureCSV) {
+        debug('metadataRecord: ' + JSON.stringify(metadataRecord, null, 4))
+        let metadatType = metadataRecord.MetadataType
+        let metadatName = metadataRecord.MetadataName
+        if (!yamlBody[metadatType]) yamlBody[metadatType] = []
+        yamlBody[metadatType].push(metadatName)
+        debug('featureYAML: ' + JSON.stringify(yamlBody, null, 4))
+      }
+    }
+
+    for (let key in yamlBody) {
+      if (key === 'ManualSteps' || key === 'Version') continue
+      yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
+      yamlBody[key].sort()
+    }
+
+    debug('yamlBody: ' + JSON.stringify(yamlBody, null, 4))
 
     fs.writeFileSync(
       yamlPath,
@@ -87,6 +149,7 @@ PackageCommand.flags = {
   diff: flags.boolean({description: 'Build metadata components by running a diff.'}),
   dir: flags.boolean({description: 'Build metadata components based on directory contents.'}),
   csv: flags.boolean({description: 'Build metadata components based on a csv file.'}),
+  yaml: flags.boolean({description: 'Build metadata components based on a yml file.'}),
   path: flags.string({char: 'p', description: 'Path to app directory or csv file.'}),
   version: flags.string({description: 'API version to use for SFDX'}),
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),

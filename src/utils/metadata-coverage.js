@@ -11,8 +11,9 @@ function getType(folder) {
 function updateYaml(filePathList, yamlBody, projectPath) {
   for (let filePath of filePathList) {
     debug('filePath: ' + filePath)
-    if (!filePath.startsWith(projectPath)) continue
+    if (!filePath || !filePath.startsWith(projectPath)) continue
     let pathParts = filePath.replace(projectPath + '/', '').split('/')
+    if (pathParts.length < 2) continue
 
     let folder = pathParts.shift()
     let metadataName = pathParts.pop().replace(/\.[\w]+$|\.[\w]+-meta\.xml$/, '')
@@ -47,12 +48,6 @@ function updateYaml(filePathList, yamlBody, projectPath) {
 
     if (!yamlBody[metadataType]) yamlBody[metadataType] = []
     yamlBody[metadataType].push(metadataName)
-  }
-
-  for (let key in yamlBody) {
-    if (key === 'ManualSteps' || key === 'Version') continue
-    yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
-    yamlBody[key].sort()
   }
 }
 
