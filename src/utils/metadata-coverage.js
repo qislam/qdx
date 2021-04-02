@@ -19,7 +19,7 @@ function getDirByExtension(extension) {
   if (result) return result.directoryName
 }
 
-function updateYaml2(filePathList, yamlBody) {
+function updateYaml(filePathList, yamlBody) {
   const objectSubTypes = _.find(describeResult.metadataObjects, {xmlName: 'CustomObject'}).childXmlNames
   const metaDataRequireFolder = [
     'EmailTemplate',
@@ -31,29 +31,29 @@ function updateYaml2(filePathList, yamlBody) {
   for (let filePath of filePathList) {
     let metadataName = ''
     let metadataType = ''
+    let folder = ''
+    let parentFolder = ''
+
     debug('filePath: ' + filePath)
 
     let pathParts = filePath.split('/')
     let fileNameParts = pathParts.pop().replace(/-meta\.xml$/, '').split(/\.(?=[^.]+$)/)
     debug('fileNameParts:\n' + JSON.stringify(fileNameParts, null, 4))
 
-    metadataName = fileNameParts[0] || ''
+    metadataName = fileNameParts[0]
     debug('metadataName: ' + metadataName)
-    const fileExtension = fileNameParts[1] || ''
+    const fileExtension = fileNameParts[1]
     debug('fileExtension: ' + fileExtension)
 
-    metadataType = getTypeByExtension(fileExtension) || ''
+    metadataType = getTypeByExtension(fileExtension)
     debug('metadataType: ' + metadataType)
-
-    let folder = ''
-    let parentFolder = ''
 
     debug('pathParts:\n' + JSON.stringify(pathParts, null, 4))
 
     if (pathParts.length > 0) folder = pathParts.pop()
     debug('folder: ' + folder)
 
-    if (metadataType === '') {
+    if (!metadataType) {
       switch (folder) {
         case 'fields':
           metadataType = 'CustomField'
@@ -75,27 +75,26 @@ function updateYaml2(filePathList, yamlBody) {
       }
     }
 
-    if (metadataType === '') metadataType = getType(folder) || ''
+    if (!metadataType) metadataType = getType(folder)
     if (pathParts.length > 0) parentFolder = pathParts.pop()
-    if (metadataType === '') metadataType = getType(parentFolder) || ''
+    if (!metadataType) metadataType = getType(parentFolder)
 
-    if (folder !== '' && metadataType !== '' && metaDataRequireFolder.includes(metadataType)) {
-      debug('Inside if loop for subfolder')
+    if (folder && metadataType && metaDataRequireFolder.includes(metadataType)) {
       metadataName = folder + '/' + metadataName
     }
     debug('metadataName: ' + metadataName)
 
-    if (metadataType !== '' && parentFolder !== '' && objectSubTypes.includes(metadataType)) {
+    if (metadataType && parentFolder && objectSubTypes.includes(metadataType)) {
       metadataName = parentFolder + '.' + metadataName
     }
 
-    if (metadataType === '') continue
+    if (!metadataType) continue
     if (!yamlBody[metadataType]) yamlBody[metadataType] = []
     yamlBody[metadataType].push(metadataName)
   }
 }
 
-function updateYaml(filePathList, yamlBody, projectPath) {
+function updateYaml2(filePathList, yamlBody, projectPath) {
   for (let filePath of filePathList) {
     debug('filePath: ' + filePath)
     if (!filePath || !filePath.startsWith(projectPath)) continue
