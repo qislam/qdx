@@ -23,7 +23,7 @@ class PackageCommand extends Command {
     const yamlPath = `manifest/${args.packageName.replace('/', '-')}.yml`
     const projectPath = flags.projectPath || 'force-app/main/default'
     debug('projectPath: ' + projectPath)
-    const apiVersion = flags.version || '50.0'
+    let apiVersion = flags.version || '50.0'
 
     if (flags.start || !fs.existsSync(yamlPath)) {
       if (!fs.existsSync('manifest')) {
@@ -39,6 +39,7 @@ class PackageCommand extends Command {
     }
 
     const yamlBody = YAML.parse(fs.readFileSync(yamlPath, 'utf-8')) || {}
+    if (yamlBody.Version) apiVersion = yamlBody.Version
     debug('yamlBody: \n' + JSON.stringify(yamlBody, null, 4))
 
     if (flags.yaml) {
@@ -51,11 +52,16 @@ class PackageCommand extends Command {
 
       const sourceYaml = YAML.parse(fs.readFileSync(flags.path, 'utf-8'))
       for (let key in sourceYaml) {
-        if (key === 'Version') continue
-        if (yamlBody[key] === undefined) {
-          yamlBody[key] = sourceYaml[key]
-        } else {
-          yamlBody[key] = [...yamlBody[key], ...sourceYaml[key]]
+        if ({}.hasOwnProperty.call(sourceYaml, key)) continue
+        switch (key) {
+          case 'Version':
+            yamlBody[key] = sourceYaml[key]
+            break
+          case undefined:
+            yamlBody[key] = sourceYaml[key]
+            break
+          default:
+            yamlBody[key] = [...yamlBody[key], ...sourceYaml[key]]
         }
       }
     }
@@ -134,6 +140,21 @@ class PackageCommand extends Command {
       {encoding: 'utf-8'}
     )
 
+    if (flags.retrieve) {
+      let retrieveCmd = 'sfdx force:source:retrieve -x ' + yamlPath.replace(/yml$/i, 'xml')
+      if (flags.username) retrieveCmd += ' -u ' + flags.username
+      const {stdout} = execa.commandSync(retrieveCmd)
+      this.log(stdout)
+    }
+
+    if (flags.deploy) {
+      let retrieveCmd = 'sfdx force:source:deploy -x ' + yamlPath.replace(/yml$/i, 'xml')
+      if (flags.username) retrieveCmd += ' -u ' + flags.username
+      if (flags.checkonly) retrieveCmd += ' --checkonly'
+      const {stdout} = execa.commandSync(retrieveCmd).stdout.pipe(process.stdout)
+      this.log(stdout)
+    }
+
     cli.action.stop('completed processing')
   }
 }
@@ -154,6 +175,7 @@ PackageCommand.flags = {
   version: flags.string({description: 'API version to use for SFDX'}),
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),
   deploy: flags.boolean({char: 'd', description: 'Deploys source already retrieved.'}),
+  checkonly: flags.boolean({description: 'Set to true for deployment validation'}),
   projectPath: flags.boolean({description: 'Base path for the project code.'}),
   username: flags.string({char: 'u'}),
 }
