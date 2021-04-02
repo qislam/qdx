@@ -9,7 +9,7 @@ const xmljs = require('xml-js')
 const execa = require('execa')
 const _ = require('lodash')
 
-const {updateYaml} = require('../utils/metadata-coverage')
+const {updateYaml, updateYaml2} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
 const {getAbsolutePath, getFiles} = require('../utils/util')
 
@@ -81,13 +81,14 @@ class PackageCommand extends Command {
     }
 
     if (flags.dir) {
-      debug('cwd: ' + process.cwd())
-      const filePaths = await getFiles(process.cwd())
-      debug('filePaths: \n' + JSON.stringify(filePaths, null, 4))
+      if (!flags.projectPath) {
+        cli.action.stop('Project path is required.')
+      }
       const fullProjectPath = path.join(process.cwd(), ...projectPath.split('/'))
       debug('fullProjectPath: ' + fullProjectPath)
+      const filePaths = await getFiles(fullProjectPath)
       try {
-        updateYaml(filePaths, yamlBody, fullProjectPath)
+        updateYaml2(filePaths, yamlBody)
       } catch (error) {
         cli.action.stop('Error: ' + error)
       }
@@ -176,7 +177,7 @@ PackageCommand.flags = {
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),
   deploy: flags.boolean({char: 'd', description: 'Deploys source already retrieved.'}),
   checkonly: flags.boolean({description: 'Set to true for deployment validation'}),
-  projectPath: flags.boolean({description: 'Base path for the project code.'}),
+  projectPath: flags.string({description: 'Base path for the project code.'}),
   username: flags.string({char: 'u'}),
 }
 

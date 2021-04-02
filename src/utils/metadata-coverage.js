@@ -1,4 +1,5 @@
 const debug = require('debug')('qdx')
+const {cli} = require('cli-ux')
 const _ = require('lodash')
 
 const describeResult = require('./metadata.json')
@@ -6,6 +7,92 @@ const describeResult = require('./metadata.json')
 function getType(folder) {
   const result = _.find(describeResult.metadataObjects, {directoryName: folder})
   if (result) return result.xmlName
+}
+
+function getTypeByExtension(extension) {
+  const result = _.find(describeResult.metadataObjects, {suffix: extension})
+  if (result) return result.xmlName
+}
+
+function getDirByExtension(extension) {
+  const result = _.find(describeResult.metadataObjects, {suffix: extension})
+  if (result) return result.directoryName
+}
+
+function updateYaml2(filePathList, yamlBody) {
+  const objectSubTypes = _.find(describeResult.metadataObjects, {xmlName: 'CustomObject'}).childXmlNames
+  const metaDataRequireFolder = [
+    'EmailTemplate',
+    'Document',
+    'Report',
+    'Dashboard',
+  ]
+
+  for (let filePath of filePathList) {
+    let metadataName = ''
+    let metadataType = ''
+    debug('filePath: ' + filePath)
+
+    let pathParts = filePath.split('/')
+    let fileNameParts = pathParts.pop().replace(/-meta\.xml$/, '').split(/\.(?=[^.]+$)/)
+    debug('fileNameParts:\n' + JSON.stringify(fileNameParts, null, 4))
+
+    metadataName = fileNameParts[0] || ''
+    debug('metadataName: ' + metadataName)
+    const fileExtension = fileNameParts[1] || ''
+    debug('fileExtension: ' + fileExtension)
+
+    metadataType = getTypeByExtension(fileExtension) || ''
+    debug('metadataType: ' + metadataType)
+
+    let folder = ''
+    let parentFolder = ''
+
+    debug('pathParts:\n' + JSON.stringify(pathParts, null, 4))
+
+    if (pathParts.length > 0) folder = pathParts.pop()
+    debug('folder: ' + folder)
+
+    if (metadataType === '') {
+      switch (folder) {
+        case 'fields':
+          metadataType = 'CustomField'
+          break
+        case 'recordTypes':
+          metadataType = 'RecordType'
+          break
+        case 'compactLayouts':
+          metadataType = 'CompactLayout'
+          break
+        case 'webLinks':
+          metadataType = 'WebLink'
+          break
+        case 'listViews':
+          metadataType = 'ListView'
+          break
+        case 'validationRules':
+          metadataType = 'ValidationRule'
+      }
+    }
+
+    if (metadataType === '') metadataType = getType(folder) || ''
+    if (pathParts.length > 0) parentFolder = pathParts.pop()
+    if (metadataType === '') metadataType = getType(parentFolder) || ''
+
+    if (folder !== '' && metadataType !== '' && metaDataRequireFolder.includes(metadataType)) {
+      debug('Inside if loop for subfolder')
+      metadataName = folder + '/' + metadataName
+    }
+    debug('metadataName: ' + metadataName)
+
+    if (metadataType !== '' && parentFolder !== '' && objectSubTypes.includes(metadataType)) {
+      metadataName = parentFolder + '.' + metadataName
+    }
+
+    if (metadataType === '') continue
+    if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+    yamlBody[metadataType].push(metadataName)
+  }
 }
 
 function updateYaml(filePathList, yamlBody, projectPath) {
@@ -51,4 +138,4 @@ function updateYaml(filePathList, yamlBody, projectPath) {
   }
 }
 
-module.exports = {getType, updateYaml}
+module.exports = {getType, updateYaml, updateYaml2}
