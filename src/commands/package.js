@@ -179,6 +179,8 @@ PackageCommand.flags = {
   checkonly: flags.boolean({description: 'Set to true for deployment validation'}),
   projectPath: flags.string({description: 'Base path for the project code.'}),
   username: flags.string({char: 'u'}),
+  fill: flags.boolean({description: 'Set to true to include all metadata for types listed in yaml.'}),
+  full: flags.boolean({description: 'Set to true to get a complete list of all metadata available.'}),
 }
 
 PackageCommand.args = [
