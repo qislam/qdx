@@ -9,7 +9,7 @@ const xmljs = require('xml-js')
 const execa = require('execa')
 const _ = require('lodash')
 
-const {updateYaml, updateYaml2} = require('../utils/metadata-coverage')
+const {describeResult, updateYaml, updateYaml2} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
 const {getAbsolutePath, getFiles} = require('../utils/util')
 
@@ -106,11 +106,40 @@ class PackageCommand extends Command {
 
       for (let metadataRecord of featureCSV) {
         debug('metadataRecord: ' + JSON.stringify(metadataRecord, null, 4))
-        let metadatType = metadataRecord.MetadataType
-        let metadatName = metadataRecord.MetadataName
-        if (!yamlBody[metadatType]) yamlBody[metadatType] = []
-        yamlBody[metadatType].push(metadatName)
+        let metadataType = metadataRecord.MetadataType
+        let metadataName = metadataRecord.MetadataName
+        if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+        yamlBody[metadataType].push(metadataName)
         debug('featureYAML: ' + JSON.stringify(yamlBody, null, 4))
+      }
+    }
+
+    if (flags.full) {
+      if (!flags.username) cli.action.stop('Username must be provided')
+
+      for (const metadataObject of describeResult.metadataObjects) {
+        const metadataType = metadataObject.xmlName
+        if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+      }
+    }
+
+    if (flags.full || flags.fill) {
+      if (!flags.username) cli.action.stop('Username must be provided')
+      for (const metadataType in yamlBody) {
+        if (!{}.hasOwnProperty.call(yamlBody, metadataType)) continue
+        if (metadataType === 'Version') continue
+
+        const listmetadatCommand = `sfdx force:mdapi:listmetadata -m ${metadataType} -u ${flags.username} --json`
+        const {stdout} = execa.commandSync(listmetadatCommand)
+        debug('MetadataNames:\n' + stdout)
+
+        const metadataNames = JSON.parse(stdout).result
+        if (Array.isArray(metadataNames)) {
+          for (const metadataName of metadataNames) {
+            if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+            yamlBody[metadataType].push(metadataName.fullName)
+          }
+        }
       }
     }
 

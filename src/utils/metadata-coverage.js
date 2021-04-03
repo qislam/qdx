@@ -137,4 +137,4 @@ function updateYaml2(filePathList, yamlBody, projectPath) {
   }
 }
 
-module.exports = {getType, updateYaml, updateYaml2}
+module.exports = {describeResult, getType, updateYaml, updateYaml2}

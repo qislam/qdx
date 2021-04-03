@@ -25,7 +25,7 @@ function yaml2xml(featureYAML, xmlVersion) {
       name: 'types',
       elements: [],
     }
-    if (featureYAML[metadataType]) {
+    if (featureYAML[metadataType] && featureYAML[metadataType].length > 0) {
       for (let metadataName of featureYAML[metadataType]) {
         typesElement.elements.push({
           type: 'element',
