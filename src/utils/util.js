@@ -15,4 +15,9 @@ async function getFiles(dir) {
   return Array.prototype.concat(...files)
 }
 
-module.exports = {getAbsolutePath, getFiles}
+function getTimeStamp() {
+  const myStamp = new Date()
+  return `${myStamp.getHours().toLocaleString('en-US', {minimumIntegerDigits: 2})}:${myStamp.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2})}:${myStamp.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2})}.${myStamp.getMilliseconds().toLocaleString('en-US', {minimumIntegerDigits: 3})}`
+}
+
+module.exports = {getAbsolutePath, getFiles, getTimeStamp}

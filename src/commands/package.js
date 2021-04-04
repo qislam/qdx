@@ -11,22 +11,23 @@ const _ = require('lodash')
 
 const {describeResult, updateYaml, updateYaml2} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
-const {getAbsolutePath, getFiles} = require('../utils/util')
+const {getAbsolutePath, getFiles, getTimeStamp} = require('../utils/util')
 
 class PackageCommand extends Command {
   async run() {
+    this.log(getTimeStamp() + '\tSTART')
     const {flags, args} = this.parse(PackageCommand)
     debug('args: ' + JSON.stringify(args, null, 4))
     debug('flags: ' + JSON.stringify(flags, null, 4))
     cli.action.start('Started on package ' + args.packageName)
 
     const yamlPath = `manifest/${args.packageName.replace('/', '-')}.yml`
-    const projectPath = flags.projectPath || 'force-app/main/default'
-    debug('projectPath: ' + projectPath)
+    const projectpath = flags.projectpath || 'force-app/main/default'
+    debug('projectpath: ' + projectpath)
     let apiVersion = flags.version || '50.0'
 
     if (flags.start || !fs.existsSync(yamlPath)) {
-      this.log('Setting up new package.')
+      this.log(getTimeStamp() + '\tSetting up new package. STARTED')
       if (!fs.existsSync('manifest')) {
         debug('Creating manifest dir')
         fs.mkdirSync('manifest')
@@ -37,7 +38,7 @@ class PackageCommand extends Command {
         YAML.stringify({Version: apiVersion}),
         {encoding: 'utf-8'}
       )
-      this.log('New package setup completed.')
+      this.log(getTimeStamp() + '\tSetting up new package. COMPLETED')
     }
 
     const yamlBody = YAML.parse(fs.readFileSync(yamlPath, 'utf-8')) || {}
@@ -67,11 +68,11 @@ class PackageCommand extends Command {
             yamlBody[key] = [...yamlBody[key], ...sourceYaml[key]]
         }
       }
-      this.log('Preparing metadata list from yaml. COMPLETED')
+      this.log(getTimeStamp() + '\tPreparing metadata list from yaml. COMPLETED')
     }
 
     if (flags.diff) {
-      this.log('Preparing metadata list from diff. STARTED')
+      this.log(getTimeStamp() + '\tPreparing metadata list from diff. STARTED')
       if (!args.commit1 || !args.commit2) {
         cli.action.stop('Commit hashes are required with diff flag.')
       }
@@ -79,20 +80,20 @@ class PackageCommand extends Command {
       const diffPaths = diffResult.stdout.split('\n')
       debug('diffPaths: \n' + JSON.stringify(diffPaths, null, 4))
       try {
-        updateYaml(diffPaths, yamlBody, projectPath)
+        updateYaml(diffPaths, yamlBody, projectpath)
       } catch (error) {
         cli.action.stop('Error: ' + error)
         return
       }
-      this.log('Preparing metadata list from diff. COMPLETED')
+      this.log(getTimeStamp() + '\tPreparing metadata list from diff. COMPLETED')
     }
 
     if (flags.dir) {
-      this.log('Preparing metadata list from dir. STARTED')
-      if (!flags.projectPath) {
+      this.log(getTimeStamp() + '\tPreparing metadata list from dir. STARTED')
+      if (!flags.projectpath) {
         cli.action.stop('Project path is required.')
       }
-      const fullProjectPath = path.join(process.cwd(), ...projectPath.split('/'))
+      const fullProjectPath = path.join(process.cwd(), ...projectpath.split('/'))
       debug('fullProjectPath: ' + fullProjectPath)
       const filePaths = await getFiles(fullProjectPath)
       try {
@@ -101,11 +102,11 @@ class PackageCommand extends Command {
         cli.action.stop('Error: ' + error)
         return
       }
-      this.log('Preparing metadata list from dir. COMPLETED')
+      this.log(getTimeStamp() + '\tPreparing metadata list from dir. COMPLETED')
     }
 
     if (flags.csv) {
-      this.log('Preparing metadata list from csv. STARTED')
+      this.log(getTimeStamp() + '\tPreparing metadata list from csv. STARTED')
       if (!flags.path) {
         cli.action.stop('File not not provided. Must be relative to current directory')
       }
@@ -123,22 +124,22 @@ class PackageCommand extends Command {
         yamlBody[metadataType].push(metadataName)
         debug('featureYAML: ' + JSON.stringify(yamlBody, null, 4))
       }
-      this.log('Preparing metadata list from csv. COMPLETED')
+      this.log(getTimeStamp() + '\tPreparing metadata list from csv. COMPLETED')
     }
 
     if (flags.full) {
-      this.log('Preparing FULL metadata list from org. STARTED')
+      this.log(getTimeStamp() + '\tPreparing FULL metadata list from org. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
 
       for (const metadataObject of describeResult.metadataObjects) {
         const metadataType = metadataObject.xmlName
         if (!yamlBody[metadataType]) yamlBody[metadataType] = []
       }
-      this.log('Preparing FULL metadata list from org. COMPLETED')
+      this.log(getTimeStamp() + '\tPreparing FULL metadata list from org. COMPLETED')
     }
 
     if (flags.full || flags.fill) {
-      this.log('Preparing full metadata list for components listed in yaml. STARTED')
+      this.log(getTimeStamp() + '\tPreparing full metadata list for components listed in yaml. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
       for (const metadataType in yamlBody) {
         if (!{}.hasOwnProperty.call(yamlBody, metadataType)) continue
@@ -156,23 +157,28 @@ class PackageCommand extends Command {
           }
         }
       }
-      this.log('Preparing full metadata list for components listed in yaml. COMPLETED')
+      this.log(getTimeStamp() + '\tPreparing full metadata list for components listed in yaml. COMPLETED')
     }
 
+    this.log(getTimeStamp() + '\tSorting yaml. STARTED')
     for (let key in yamlBody) {
       if (key === 'ManualSteps' || key === 'Version') continue
       yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
       yamlBody[key].sort()
     }
+    this.log(getTimeStamp() + '\tSorting yaml. COMPLETED')
 
     debug('yamlBody: ' + JSON.stringify(yamlBody, null, 4))
 
+    this.log(getTimeStamp() + '\tWriting yaml file. STARTED')
     fs.writeFileSync(
       yamlPath,
       YAML.stringify(yamlBody),
       {encoding: 'utf-8'}
     )
-
+    this.log(getTimeStamp() + '\tWriting yaml file. COMPLETED')
+    
+    this.log(getTimeStamp() + '\tPreparing/writing xml file. STARTED')
     let xmlBody = yaml2xml(yamlBody, apiVersion)
     let xmlOptions = {
       spaces: 4,
@@ -185,26 +191,27 @@ class PackageCommand extends Command {
       xmljs.js2xml(xmlBody, xmlOptions),
       {encoding: 'utf-8'}
     )
+    this.log(getTimeStamp() + '\tPreparing/writing xml file. COMPLETED')
 
     if (flags.retrieve) {
-      this.log('Retrieving source from org. STARTED')
+      this.log(getTimeStamp() + '\tRetrieving source from org. STARTED')
       let retrieveCmd = 'sfdx force:source:retrieve -x ' + yamlPath.replace(/yml$/i, 'xml')
       if (flags.username) retrieveCmd += ' -u ' + flags.username
       const {stdout} = execa.commandSync(retrieveCmd)
-      this.log('Retrieving source from org. COMPLETED')
+      this.log(getTimeStamp() + '\tRetrieving source from org. COMPLETED')
     }
 
     if (flags.deploy) {
-      this.log('Deploying source to org. STARTED')
+      this.log(getTimeStamp() + '\tDeploying source to org. STARTED')
       let retrieveCmd = 'sfdx force:source:deploy -x ' + yamlPath.replace(/yml$/i, 'xml')
       if (flags.username) retrieveCmd += ' -u ' + flags.username
       if (flags.checkonly) retrieveCmd += ' --checkonly'
       const {stdout} = execa.commandSync(retrieveCmd).stdout.pipe(process.stdout)
       this.log(stdout)
-      this.log('Deploying source to org. COMPLETED')
+      this.log(getTimeStamp() + '\tDeploying source to org. COMPLETED')
     }
-
-    cli.action.stop('completed processing')
+    this.log(getTimeStamp() + '\tEND')
+    cli.action.stop('done')
   }
 }
 
@@ -225,7 +232,7 @@ PackageCommand.flags = {
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),
   deploy: flags.boolean({char: 'd', description: 'Deploys source already retrieved.'}),
   checkonly: flags.boolean({description: 'Set to true for deployment validation'}),
-  projectPath: flags.string({description: 'Base path for the project code.'}),
+  projectpath: flags.string({description: 'Base path for the project code.'}),
   username: flags.string({char: 'u'}),
   fill: flags.boolean({description: 'Set to true to include all metadata for types listed in yaml.'}),
   full: flags.boolean({description: 'Set to true to get a complete list of all metadata available.'}),
