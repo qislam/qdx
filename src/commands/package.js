@@ -26,6 +26,7 @@ class PackageCommand extends Command {
     let apiVersion = flags.version || '50.0'
 
     if (flags.start || !fs.existsSync(yamlPath)) {
+      this.log('Setting up new package.')
       if (!fs.existsSync('manifest')) {
         debug('Creating manifest dir')
         fs.mkdirSync('manifest')
@@ -36,6 +37,7 @@ class PackageCommand extends Command {
         YAML.stringify({Version: apiVersion}),
         {encoding: 'utf-8'}
       )
+      this.log('New package setup completed.')
     }
 
     const yamlBody = YAML.parse(fs.readFileSync(yamlPath, 'utf-8')) || {}
@@ -43,6 +45,7 @@ class PackageCommand extends Command {
     debug('yamlBody: \n' + JSON.stringify(yamlBody, null, 4))
 
     if (flags.yaml) {
+      this.log('Preparing metadata list from yaml. STARTED')
       if (!flags.path) {
         cli.action.stop('File not not provided. Must be relative to current directory')
       }
@@ -64,9 +67,11 @@ class PackageCommand extends Command {
             yamlBody[key] = [...yamlBody[key], ...sourceYaml[key]]
         }
       }
+      this.log('Preparing metadata list from yaml. COMPLETED')
     }
 
     if (flags.diff) {
+      this.log('Preparing metadata list from diff. STARTED')
       if (!args.commit1 || !args.commit2) {
         cli.action.stop('Commit hashes are required with diff flag.')
       }
@@ -77,10 +82,13 @@ class PackageCommand extends Command {
         updateYaml(diffPaths, yamlBody, projectPath)
       } catch (error) {
         cli.action.stop('Error: ' + error)
+        return
       }
+      this.log('Preparing metadata list from diff. COMPLETED')
     }
 
     if (flags.dir) {
+      this.log('Preparing metadata list from dir. STARTED')
       if (!flags.projectPath) {
         cli.action.stop('Project path is required.')
       }
@@ -91,10 +99,13 @@ class PackageCommand extends Command {
         updateYaml(filePaths, yamlBody)
       } catch (error) {
         cli.action.stop('Error: ' + error)
+        return
       }
+      this.log('Preparing metadata list from dir. COMPLETED')
     }
 
     if (flags.csv) {
+      this.log('Preparing metadata list from csv. STARTED')
       if (!flags.path) {
         cli.action.stop('File not not provided. Must be relative to current directory')
       }
@@ -112,18 +123,22 @@ class PackageCommand extends Command {
         yamlBody[metadataType].push(metadataName)
         debug('featureYAML: ' + JSON.stringify(yamlBody, null, 4))
       }
+      this.log('Preparing metadata list from csv. COMPLETED')
     }
 
     if (flags.full) {
+      this.log('Preparing FULL metadata list from org. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
 
       for (const metadataObject of describeResult.metadataObjects) {
         const metadataType = metadataObject.xmlName
         if (!yamlBody[metadataType]) yamlBody[metadataType] = []
       }
+      this.log('Preparing FULL metadata list from org. COMPLETED')
     }
 
     if (flags.full || flags.fill) {
+      this.log('Preparing full metadata list for components listed in yaml. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
       for (const metadataType in yamlBody) {
         if (!{}.hasOwnProperty.call(yamlBody, metadataType)) continue
@@ -141,6 +156,7 @@ class PackageCommand extends Command {
           }
         }
       }
+      this.log('Preparing full metadata list for components listed in yaml. COMPLETED')
     }
 
     for (let key in yamlBody) {
@@ -171,18 +187,21 @@ class PackageCommand extends Command {
     )
 
     if (flags.retrieve) {
+      this.log('Retrieving source from org. STARTED')
       let retrieveCmd = 'sfdx force:source:retrieve -x ' + yamlPath.replace(/yml$/i, 'xml')
       if (flags.username) retrieveCmd += ' -u ' + flags.username
       const {stdout} = execa.commandSync(retrieveCmd)
-      this.log(stdout)
+      this.log('Retrieving source from org. COMPLETED')
     }
 
     if (flags.deploy) {
+      this.log('Deploying source to org. STARTED')
       let retrieveCmd = 'sfdx force:source:deploy -x ' + yamlPath.replace(/yml$/i, 'xml')
       if (flags.username) retrieveCmd += ' -u ' + flags.username
       if (flags.checkonly) retrieveCmd += ' --checkonly'
       const {stdout} = execa.commandSync(retrieveCmd).stdout.pipe(process.stdout)
       this.log(stdout)
+      this.log('Deploying source to org. COMPLETED')
     }
 
     cli.action.stop('completed processing')
