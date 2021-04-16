@@ -94,47 +94,4 @@ function updateYaml(filePathList, yamlBody) {
   }
 }
 
-function updateYaml2(filePathList, yamlBody, projectPath) {
-  for (let filePath of filePathList) {
-    debug('filePath: ' + filePath)
-    if (!filePath || !filePath.startsWith(projectPath)) continue
-    let pathParts = filePath.replace(projectPath + '/', '').split('/')
-    if (pathParts.length < 2) continue
-
-    let folder = pathParts.shift()
-    let metadataName = pathParts.pop().replace(/\.[\w]+$|\.[\w]+-meta\.xml$/, '')
-    let metadataType = getType(folder) || folder
-
-    if (folder === 'objects') {
-      let sobject = pathParts.shift()
-      if (pathParts.length > 0) {
-        metadataName = sobject + '.' + metadataName
-        let subfolder = pathParts.shift()
-        if (subfolder === 'fields') metadataType = 'CustomField'
-        if (subfolder === 'recordTypes') metadataType = 'RecordType'
-        if (subfolder === 'compactLayouts') metadataType = 'CompactLayout'
-        if (subfolder === 'webLinks') metadataType = 'WebLink'
-        if (subfolder === 'listViews') metadataType = 'ListView'
-        if (subfolder === 'validationRules') metadataType = 'ValidationRule'
-      }
-    } else if (pathParts.length > 0) {
-      let subfolder = pathParts.shift()
-      metadataName = subfolder + '/' + metadataName
-    } else if (folder === 'documents') {
-      metadataType = 'DocumentFolder'
-    } else if (folder === 'email') {
-      metadataType = 'EmailFolder'
-    } else if (folder === 'reports') {
-      metadataType = 'ReportFolder'
-    } else if (folder === 'dashboards') {
-      metadataType = 'DashboardFolder'
-    }
-
-    debug(metadataType + ':' + metadataName)
-
-    if (!yamlBody[metadataType]) yamlBody[metadataType] = []
-    yamlBody[metadataType].push(metadataName)
-  }
-}
-
-module.exports = {describeResult, getType, updateYaml, updateYaml2}
+module.exports = {describeResult, getType, updateYaml}

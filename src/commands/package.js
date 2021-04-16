@@ -9,7 +9,7 @@ const xmljs = require('xml-js')
 const execa = require('execa')
 const _ = require('lodash')
 
-const {describeResult, updateYaml, updateYaml2} = require('../utils/metadata-coverage')
+const {describeResult, updateYaml} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
 const {getAbsolutePath, getFiles, getTimeStamp} = require('../utils/util')
 
@@ -141,19 +141,50 @@ class PackageCommand extends Command {
     if (flags.full || flags.fill) {
       this.log(getTimeStamp() + '\tPreparing full metadata list for components listed in yaml. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
+
       for (const metadataType in yamlBody) {
         if (!{}.hasOwnProperty.call(yamlBody, metadataType)) continue
         if (metadataType === 'Version') continue
 
         const listmetadatCommand = `sfdx force:mdapi:listmetadata -m ${metadataType} -u ${flags.username} --json`
-        const {stdout} = execa.commandSync(listmetadatCommand)
-        debug('MetadataNames:\n' + stdout)
 
-        const metadataNames = JSON.parse(stdout).result
-        if (Array.isArray(metadataNames)) {
-          for (const metadataName of metadataNames) {
-            if (!yamlBody[metadataType]) yamlBody[metadataType] = []
-            yamlBody[metadataType].push(metadataName.fullName)
+        let folderType = ''
+        if (metadataType === 'EmailTemplate') folderType = 'EmailFolder'
+        if (metadataType === 'Report') folderType = 'ReportFolder'
+        if (metadataType === 'Document') folderType = 'DocumentFolder'
+        if (metadataType === 'Dashboard') folderType = 'DashboardFolder'
+        debug('folderType: ' + folderType)
+
+        if (folderType) {
+          const folderListCmd = `sfdx force:mdapi:listmetadata -m ${folderType} -u ${flags.username} --json`
+          const {stdout} = execa.commandSync(folderListCmd)
+          debug('FolderListResult:\n' + stdout)
+
+          const metadataFolders = JSON.parse(stdout).result
+          if (Array.isArray(metadataFolders)) {
+            for (const metadataFolderName of metadataFolders) {
+              if (metadataFolderName.fullName.startsWith('unfiled')) continue
+              const cmdWithFolderName = `${listmetadatCommand} --folder ${metadataFolderName.fullName}`
+              const {stdout} = execa.commandSync(cmdWithFolderName)
+              debug('MetadataNames:\n' + stdout)
+              const metadataNames = JSON.parse(stdout).result
+              if (Array.isArray(metadataNames)) {
+                for (const metadataName of metadataNames) {
+                  if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+                  yamlBody[metadataType].push(metadataName.fullName)
+                }
+              }
+            }
+          }
+        } else {
+          const {stdout} = execa.commandSync(listmetadatCommand)
+          debug('MetadataNames:\n' + stdout)
+          const metadataNames = JSON.parse(stdout).result
+          if (Array.isArray(metadataNames)) {
+            for (const metadataName of metadataNames) {
+              if (!yamlBody[metadataType]) yamlBody[metadataType] = []
+              yamlBody[metadataType].push(metadataName.fullName)
+            }
           }
         }
       }
@@ -161,10 +192,28 @@ class PackageCommand extends Command {
     }
 
     this.log(getTimeStamp() + '\tSorting yaml. STARTED')
+    const requireTwoUnderscores = [
+      'CustomObject',
+      'CustomField',
+      'Layout',
+      'Workflow',
+    ]
     for (let key in yamlBody) {
       if (key === 'ManualSteps' || key === 'Version') continue
       yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
       yamlBody[key].sort()
+      if (flags.installedpackage) continue
+      let toRemove = []
+      for (let i = 0; i < yamlBody[key].length; i++) {
+        let underscores = yamlBody[key][i].match(/__/g)
+        if (!underscores) continue
+        if (requireTwoUnderscores.includes(key) && underscores.length < 2) continue
+        if (yamlBody[key][i].includes('__c')) continue
+        toRemove.push(yamlBody[key][i])
+      }
+      for (let element of toRemove) {
+        yamlBody[key].splice(yamlBody[key].indexOf(element), 1)
+      }
     }
     this.log(getTimeStamp() + '\tSorting yaml. COMPLETED')
 
@@ -236,6 +285,7 @@ PackageCommand.flags = {
   username: flags.string({char: 'u'}),
   fill: flags.boolean({description: 'Set to true to include all metadata for types listed in yaml.'}),
   full: flags.boolean({description: 'Set to true to get a complete list of all metadata available.'}),
+  installedpackage: flags.boolean(),
 }
 
 PackageCommand.args = [
