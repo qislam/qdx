@@ -19,7 +19,7 @@ function getDirByExtension(extension) {
   if (result) return result.directoryName
 }
 
-function updateYaml(filePathList, yamlBody) {
+function updateYaml(filePathList, yamlBody, projectpath) {
   const objectSubTypes = _.find(describeResult.metadataObjects, {xmlName: 'CustomObject'}).childXmlNames
   const metaDataRequireFolder = [
     'EmailTemplate',
@@ -29,6 +29,7 @@ function updateYaml(filePathList, yamlBody) {
   ]
 
   for (let filePath of filePathList) {
+    if (projectpath && !filePath.includes(projectpath)) continue
     let metadataName = ''
     let metadataType = ''
     let folder = ''
