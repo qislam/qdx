@@ -255,7 +255,7 @@ class PackageCommand extends Command {
       let retrieveCmd = 'sfdx force:source:deploy -x ' + yamlPath.replace(/yml$/i, 'xml')
       if (flags.username) retrieveCmd += ' -u ' + flags.username
       if (flags.checkonly) retrieveCmd += ' --checkonly'
-      const {stdout} = execa.commandSync(retrieveCmd).stdout.pipe(process.stdout)
+      const {stdout} = execa.commandSync(retrieveCmd)
       this.log(stdout)
       this.log(getTimeStamp() + '\tDeploying source to org. COMPLETED')
     }
