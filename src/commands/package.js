@@ -97,7 +97,7 @@ class PackageCommand extends Command {
       debug('fullProjectPath: ' + fullProjectPath)
       const filePaths = await getFiles(fullProjectPath)
       try {
-        updateYaml(filePaths, yamlBody)
+        updateYaml(filePaths, yamlBody, projectpath)
       } catch (error) {
         cli.action.stop('Error: ' + error)
         return
