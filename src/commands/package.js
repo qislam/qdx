@@ -92,6 +92,7 @@ class PackageCommand extends Command {
       this.log(getTimeStamp() + '\tPreparing metadata list from dir. STARTED')
       if (!flags.projectpath) {
         cli.action.stop('Project path is required.')
+        return
       }
       const fullProjectPath = path.join(process.cwd(), ...projectpath.split('/'))
       debug('fullProjectPath: ' + fullProjectPath)
@@ -109,6 +110,7 @@ class PackageCommand extends Command {
       this.log(getTimeStamp() + '\tPreparing metadata list from csv. STARTED')
       if (!flags.path) {
         cli.action.stop('File not not provided. Must be relative to current directory')
+        return
       }
       if (!fs.existsSync(getAbsolutePath(flags.path))) {
         cli.action.stop('File not found. Check file path. Must be relative to current directory')

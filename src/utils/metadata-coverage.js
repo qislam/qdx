@@ -1,4 +1,5 @@
 const debug = require('debug')('qdx')
+const path = require('path')
 const {cli} = require('cli-ux')
 const _ = require('lodash')
 
@@ -37,7 +38,7 @@ function updateYaml(filePathList, yamlBody, projectpath) {
 
     debug('filePath: ' + filePath)
 
-    let pathParts = filePath.split('/')
+    let pathParts = filePath.split(path.sep)
     let fileNameParts = pathParts.pop().replace(/-meta\.xml$/, '').split(/\.(?=[^.]+$)/)
     debug('fileNameParts:\n' + JSON.stringify(fileNameParts, null, 4))
 
