@@ -100,7 +100,7 @@ class PackageCommand extends Command {
       debug('filePaths: ' + filePaths.length)
       let osProjPath = projectpath
       if (path.sep !== '/') {
-        osProjPath = projectpath.replace('/', path.sep)
+        osProjPath = projectpath.replace(/\//g, path.sep)
       }
       try {
         updateYaml(filePaths, yamlBody, osProjPath)
