@@ -19,7 +19,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/0.0.0 darwin-x64 node-v10.13.0
+qdx/1.0.5 darwin-x64 node-v10.13.0
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -32,10 +32,12 @@ USAGE
 * [`qdx deploy`](#qdx-deploy)
 * [`qdx help [COMMAND]`](#qdx-help-command)
 * [`qdx metapackage`](#qdx-metapackage)
-* [`qdx package`](#qdx-package)
+* [`qdx package PACKAGENAME [COMMIT1] [COMMIT2]`](#qdx-package-packagename-commit1-commit2)
 * [`qdx puppeteer`](#qdx-puppeteer)
 
 ## `qdx data`
+
+Describe the command here
 
 ```
 Describe the command here
@@ -54,9 +56,11 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/data.js)_
+_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.0.5/src/commands/data.js)_
 
 ## `qdx deploy`
+
+Describe the command here
 
 ```
 Describe the command here
@@ -75,9 +79,11 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/deploy.js)_
+_See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v1.0.5/src/commands/deploy.js)_
 
 ## `qdx help [COMMAND]`
+
+display help for qdx
 
 ```
 display help for <%= config.bin %>
@@ -96,6 +102,8 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3
 
 ## `qdx metapackage`
 
+Describe the command here
+
 ```
 Describe the command here
 ...
@@ -113,30 +121,49 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/metapackage.js)_
+_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.0.5/src/commands/metapackage.js)_
 
-## `qdx package`
+## `qdx package PACKAGENAME [COMMIT1] [COMMIT2]`
+
+To build a package to use with sfdx retrieve/deploy commands.
 
 ```
-Describe the command here
+To build a package to use with sfdx retrieve/deploy commands.
 ...
 Extra documentation goes here
 
 
 USAGE
-  $ qdx package
+  $ qdx package PACKAGENAME [COMMIT1] [COMMIT2]
 
 OPTIONS
-  -n, --name=name  name to print
+  -d, --deploy               Deploys source already retrieved.
+  -h, --help                 show CLI help
+  -p, --path=path            Path to app directory or csv file.
+  -r, --retrieve             Retrieve source based on YAML configuration.
+  -s, --start                Start a new package. Will create YAML file if not already exist.
+  -u, --username=username
+  --checkonly                Set to true for deployment validation
+  --csv                      Build metadata components based on a csv file.
+  --diff                     Build metadata components by running a diff.
+  --dir                      Build metadata components based on directory contents.
+  --fill                     Set to true to include all metadata for types listed in yaml.
+  --full                     Set to true to get a complete list of all metadata available.
+  --installedpackage
+  --projectpath=projectpath  Base path for the project code.
+  --version=version          API version to use for SFDX
+  --yaml                     Build metadata components based on a yml file.
 
 DESCRIPTION
   ...
   Extra documentation goes here
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/package.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.0.5/src/commands/package.js)_
 
 ## `qdx puppeteer`
+
+Describe the command here
 
 ```
 Describe the command here
@@ -155,5 +182,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v0.0.0/src/commands/puppeteer.js)_
+_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.0.5/src/commands/puppeteer.js)_
 <!-- commandsstop -->
