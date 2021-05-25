@@ -32,7 +32,7 @@ function updateYaml(filePathList, yamlBody, projectpath) {
   for (let filePath of filePathList) {
     debug('filePath: ' + filePath)
     debug('projectpath: ' + projectpath)
-
+    
     if (projectpath && !filePath.includes(projectpath)) continue
     let metadataName = ''
     let metadataType = ''

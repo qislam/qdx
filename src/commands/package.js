@@ -98,8 +98,12 @@ class PackageCommand extends Command {
       debug('fullProjectPath: ' + fullProjectPath)
       const filePaths = await getFiles(fullProjectPath)
       debug('filePaths: ' + filePaths.length)
+      let osProjPath = projectpath
+      if (path.sep !== '/') {
+        osProjPath = projectpath.replace('/', path.sep)
+      }
       try {
-        updateYaml(filePaths, yamlBody, projectpath)
+        updateYaml(filePaths, yamlBody, osProjPath)
       } catch (error) {
         cli.action.stop('Error: ' + error)
         return
