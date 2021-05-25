@@ -97,6 +97,7 @@ class PackageCommand extends Command {
       const fullProjectPath = path.join(process.cwd(), ...projectpath.split('/'))
       debug('fullProjectPath: ' + fullProjectPath)
       const filePaths = await getFiles(fullProjectPath)
+      debug('filePaths: ' + filePaths.length)
       try {
         updateYaml(filePaths, yamlBody, projectpath)
       } catch (error) {

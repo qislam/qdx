@@ -30,13 +30,14 @@ function updateYaml(filePathList, yamlBody, projectpath) {
   ]
 
   for (let filePath of filePathList) {
+    debug('filePath: ' + filePath)
+    debug('projectpath: ' + projectpath)
+
     if (projectpath && !filePath.includes(projectpath)) continue
     let metadataName = ''
     let metadataType = ''
     let folder = ''
     let parentFolder = ''
-
-    debug('filePath: ' + filePath)
 
     let pathParts = filePath.split(path.sep)
     let fileNameParts = pathParts.pop().replace(/-meta\.xml$/, '').split(/\.(?=[^.]+$)/)
