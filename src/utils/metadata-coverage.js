@@ -40,6 +40,7 @@ function updateYaml(filePathList, yamlBody, projectpath) {
     let parentFolder = ''
 
     let pathParts = filePath.split(path.sep)
+    if (pathParts.length < 2) pathParts = filePath.split('/')
     let fileNameParts = pathParts.pop().replace(/-meta\.xml$/, '').split(/\.(?=[^.]+$)/)
     debug('fileNameParts:\n' + JSON.stringify(fileNameParts, null, 4))
 
