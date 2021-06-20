@@ -57,6 +57,10 @@ function updateYaml(filePathList, yamlBody, projectpath) {
     if (pathParts.length > 0) folder = pathParts.pop()
     debug('folder: ' + folder)
 
+    if (['js', 'css', 'design'].includes(fileExtension)) {
+      metadataName = folder
+    }
+
     if (!metadataType) {
       switch (folder) {
         case 'fields':
