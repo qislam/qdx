@@ -56,7 +56,8 @@ class PackageCommand extends Command {
 
       const sourceYaml = YAML.parse(fs.readFileSync(flags.path, 'utf-8'))
       for (let key in sourceYaml) {
-        if ({}.hasOwnProperty.call(sourceYaml, key)) continue
+        if (!{}.hasOwnProperty.call(sourceYaml, key)) continue
+        if (!yamlBody[key]) yamlBody[key] = []
         switch (key) {
           case 'Version':
             yamlBody[key] = sourceYaml[key]
