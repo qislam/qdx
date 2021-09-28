@@ -9,7 +9,7 @@ const xmljs = require('xml-js')
 const execa = require('execa')
 const _ = require('lodash')
 
-const {describeResult, updateYaml} = require('../utils/metadata-coverage')
+const {updateYaml} = require('../utils/metadata-coverage')
 const {yaml2xml} = require('../utils/convert')
 const {getAbsolutePath, getFiles, getTimeStamp} = require('../utils/util')
 
@@ -70,6 +70,21 @@ class PackageCommand extends Command {
         }
       }
       this.log(getTimeStamp() + '\tPreparing metadata list from yaml. COMPLETED')
+    }
+
+    if (flags.xml) {
+      this.log('Preparing metadata list from xml. STARTED')
+      if (!flags.path) {
+        cli.action.stop('File not not provided. Must be relative to current directory')
+      }
+      if (!fs.existsSync(getAbsolutePath(flags.path))) {
+        cli.action.stop('File not found. Check file path. Must be relative to current directory')
+      }
+      const xmlBody = fs.readFileSync(flags.path, 'utf-8')
+      this.log(xmljs.xml2json(xmlBody, {compact: true, spaces: 4}))
+      this.log(xmljs.xml2json(xmlBody, {compact: false, spaces: 4}))
+
+      this.log(getTimeStamp() + '\tPreparing metadata list from xml. COMPLETED')
     }
 
     if (flags.diff) {
@@ -139,7 +154,9 @@ class PackageCommand extends Command {
       this.log(getTimeStamp() + '\tPreparing FULL metadata list from org. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
 
-      for (const metadataObject of describeResult.metadataObjects) {
+      const fullDescribeCmd = `sfdx force:mdapi:describemetadata -u ${flags.username} --json`
+      const {stdout} = execa.commandSync(fullDescribeCmd)
+      for (const metadataObject of JSON.parse(stdout).result.metadataObjects) {
         const metadataType = metadataObject.xmlName
         if (!yamlBody[metadataType]) yamlBody[metadataType] = []
       }
@@ -153,6 +170,7 @@ class PackageCommand extends Command {
       for (const metadataType in yamlBody) {
         if (!{}.hasOwnProperty.call(yamlBody, metadataType)) continue
         if (metadataType === 'Version') continue
+        yamlBody[metadataType] = []
 
         const listmetadatCommand = `sfdx force:mdapi:listmetadata -m ${metadataType} -u ${flags.username} --json`
 
@@ -190,6 +208,7 @@ class PackageCommand extends Command {
           const metadataNames = JSON.parse(stdout).result
           if (Array.isArray(metadataNames)) {
             for (const metadataName of metadataNames) {
+              if (metadataName.namespacePrefix) continue
               if (!yamlBody[metadataType]) yamlBody[metadataType] = []
               yamlBody[metadataType].push(metadataName.fullName)
             }
@@ -250,8 +269,9 @@ class PackageCommand extends Command {
     )
     this.log(getTimeStamp() + '\tPreparing/writing xml file. COMPLETED')
 
-    if (flags.retrieve) {
+    if (flags.retrieve || flags.delete) {
       this.log(getTimeStamp() + '\tRetrieving source from org. STARTED')
+      if (!flags.username) cli.action.stop('Username must be provided')
       let retrieveCmd = 'sfdx force:source:retrieve -x ' + yamlPath.replace(/yml$/i, 'xml')
       if (flags.username) retrieveCmd += ' -u ' + flags.username
       const {stdout} = execa.commandSync(retrieveCmd)
@@ -260,13 +280,48 @@ class PackageCommand extends Command {
 
     if (flags.deploy) {
       this.log(getTimeStamp() + '\tDeploying source to org. STARTED')
-      let retrieveCmd = 'sfdx force:source:deploy -x ' + yamlPath.replace(/yml$/i, 'xml')
-      if (flags.username) retrieveCmd += ' -u ' + flags.username
-      if (flags.checkonly) retrieveCmd += ' --checkonly'
-      const {stdout} = execa.commandSync(retrieveCmd)
+      if (!flags.username) cli.action.stop('Username must be provided')
+      let deployCmd = 'sfdx force:source:deploy -x ' + yamlPath.replace(/yml$/i, 'xml')
+      if (flags.username) deployCmd += ' -u ' + flags.username
+      if (flags.checkonly) deployCmd += ' --checkonly'
+      const {stdout} = execa.commandSync(deployCmd)
       this.log(stdout)
       this.log(getTimeStamp() + '\tDeploying source to org. COMPLETED')
     }
+
+    if (flags.delete) {
+      this.log(getTimeStamp() + '\tDeleting components from org. STARTED')
+      if (!flags.username) cli.action.stop('Username must be provided')
+      let deleteCmd = ''
+      const fullDescribeCmd = `sfdx force:mdapi:describemetadata -u ${flags.username} --json`
+      const {stdout} = execa.commandSync(fullDescribeCmd)
+      let describeByMetaName = new Map()
+      for (const metaDescribe of JSON.parse(stdout).result.metadataObjects) {
+        describeByMetaName.set(metaDescribe.xmlName, metaDescribe)
+      }
+
+      for (let metadataType in yamlBody) {
+        if (metadataType === 'ManualSteps' || metadataType === 'Version') continue
+        const metaDescribe = describeByMetaName.get(metadataType)
+
+        if (Array.isArray(yamlBody[metadataType]) && yamlBody[metadataType].length > 0) {
+          for (let metadataName of yamlBody[metadataType]) {
+            if (describeByMetaName.get('CustomObject').childXmlNames.includes(metadataType)) {
+              const objectName = metadataName.split('.')[0]
+              const subTypeName = metadataName.split('.')[1]
+              deleteCmd = `sfdx force:source:delete -u ${flags.username} -p ${flags.projectpath}/objects/${objectName}/fields/${subTypeName}.field-meta.xml --noprompt`
+            } else {
+              deleteCmd = `sfdx force:source:delete -m ${metadataType}:${metadataName} -u ${flags.username} --noprompt`
+            }
+            debug('deleteCmd: ' + deleteCmd)
+            const {stdout} = execa.commandSync(deleteCmd)
+            this.log(stdout)
+          }
+        }
+      }
+      this.log(getTimeStamp() + '\tDeleting components from org. COMPLETED')
+    }
+
     this.log(getTimeStamp() + '\tEND')
     cli.action.stop('done')
   }
@@ -284,10 +339,12 @@ PackageCommand.flags = {
   dir: flags.boolean({description: 'Build metadata components based on directory contents.'}),
   csv: flags.boolean({description: 'Build metadata components based on a csv file.'}),
   yaml: flags.boolean({description: 'Build metadata components based on a yml file.'}),
+  xml: flags.boolean({description: 'Build metadata components based on a xml file.'}),
   path: flags.string({char: 'p', description: 'Path to app directory or csv file.'}),
   version: flags.string({description: 'API version to use for SFDX'}),
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),
   deploy: flags.boolean({char: 'd', description: 'Deploys source already retrieved.'}),
+  delete: flags.boolean({description: 'Delete the specific components listed in the yaml file.'}),
   checkonly: flags.boolean({description: 'Set to true for deployment validation'}),
   projectpath: flags.string({description: 'Base path for the project code.'}),
   username: flags.string({char: 'u'}),

@@ -3,8 +3,6 @@ const path = require('path')
 const {cli} = require('cli-ux')
 const _ = require('lodash')
 
-const describeResult = require('./metadata.json')
-
 function getType(folder) {
   const result = _.find(describeResult.metadataObjects, {directoryName: folder})
   if (result) return result.xmlName
@@ -102,4 +100,4 @@ function updateYaml(filePathList, yamlBody, projectpath) {
   }
 }
 
-module.exports = {describeResult, getType, updateYaml}
+module.exports = {getType, updateYaml}

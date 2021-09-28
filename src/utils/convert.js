@@ -1,3 +1,7 @@
+function xml2yaml(featureXML, featureYAML) {
+  
+}
+
 function yaml2xml(featureYAML, xmlVersion) {
   const featureXML = {
     declaration: {
