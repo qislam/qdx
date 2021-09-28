@@ -24,7 +24,20 @@ class PackageCommand extends Command {
     const yamlPath = `manifest/${args.packageName.replace('/', '-')}.yml`
     const projectpath = flags.projectpath || 'force-app/main/default'
     debug('projectpath: ' + projectpath)
-    let apiVersion = flags.version || '50.0'
+    let apiVersion = flags.version || '52.0'
+
+    const objectSubtypes = [
+      'CustomField',
+      'Index',
+      'BusinessProcess',
+      'RecordType',
+      'CompactLayout',
+      'WebLink',
+      'ValidationRule',
+      'SharingReason',
+      'ListView',
+      'FieldSet',
+    ]
 
     if (flags.start || !fs.existsSync(yamlPath)) {
       this.log(getTimeStamp() + '\tSetting up new package. STARTED')
@@ -219,29 +232,13 @@ class PackageCommand extends Command {
     }
 
     this.log(getTimeStamp() + '\tSorting yaml. STARTED')
-    const requireTwoUnderscores = [
-      'CustomObject',
-      'CustomField',
-      'Layout',
-      'Workflow',
-    ]
+
     for (let key in yamlBody) {
       if (key === 'ManualSteps' || key === 'Version') continue
       yamlBody[key] = _.uniqWith(yamlBody[key], _.isEqual)
       yamlBody[key].sort()
-      if (flags.installedpackage) continue
-      let toRemove = []
-      for (let i = 0; i < yamlBody[key].length; i++) {
-        let underscores = yamlBody[key][i].match(/__/g)
-        if (!underscores) continue
-        if (requireTwoUnderscores.includes(key) && underscores.length < 2) continue
-        if (yamlBody[key][i].includes('__c')) continue
-        toRemove.push(yamlBody[key][i])
-      }
-      for (let element of toRemove) {
-        yamlBody[key].splice(yamlBody[key].indexOf(element), 1)
-      }
     }
+
     this.log(getTimeStamp() + '\tSorting yaml. COMPLETED')
 
     debug('yamlBody: ' + JSON.stringify(yamlBody, null, 4))
@@ -253,7 +250,7 @@ class PackageCommand extends Command {
       {encoding: 'utf-8'}
     )
     this.log(getTimeStamp() + '\tWriting yaml file. COMPLETED')
-    
+
     this.log(getTimeStamp() + '\tPreparing/writing xml file. STARTED')
     let xmlBody = yaml2xml(yamlBody, apiVersion)
     let xmlOptions = {
@@ -293,23 +290,51 @@ class PackageCommand extends Command {
       this.log(getTimeStamp() + '\tDeleting components from org. STARTED')
       if (!flags.username) cli.action.stop('Username must be provided')
       let deleteCmd = ''
-      const fullDescribeCmd = `sfdx force:mdapi:describemetadata -u ${flags.username} --json`
-      const {stdout} = execa.commandSync(fullDescribeCmd)
-      let describeByMetaName = new Map()
-      for (const metaDescribe of JSON.parse(stdout).result.metadataObjects) {
-        describeByMetaName.set(metaDescribe.xmlName, metaDescribe)
-      }
 
       for (let metadataType in yamlBody) {
         if (metadataType === 'ManualSteps' || metadataType === 'Version') continue
-        const metaDescribe = describeByMetaName.get(metadataType)
 
         if (Array.isArray(yamlBody[metadataType]) && yamlBody[metadataType].length > 0) {
           for (let metadataName of yamlBody[metadataType]) {
-            if (describeByMetaName.get('CustomObject').childXmlNames.includes(metadataType)) {
+            if (objectSubtypes.includes(metadataType)) {
               const objectName = metadataName.split('.')[0]
               const subTypeName = metadataName.split('.')[1]
-              deleteCmd = `sfdx force:source:delete -u ${flags.username} -p ${flags.projectpath}/objects/${objectName}/fields/${subTypeName}.field-meta.xml --noprompt`
+              let subTypeFolder
+              let subtypeExtension
+
+              if (metadataType === 'CustomField') {
+                subTypeFolder = 'fields'
+                subtypeExtension = 'field'
+              } else if (metadataType === 'RecordType') {
+                subTypeFolder = 'recordTypes'
+                subtypeExtension = 'recordType'
+              } else if (metadataType === 'CompactLayout') {
+                subTypeFolder = 'compactLayouts'
+                subtypeExtension = 'compactLayout'
+              } else if (metadataType === 'WebLink') {
+                subTypeFolder = 'webLinks'
+                subtypeExtension = 'webLink'
+              } else if (metadataType === 'ValidationRule') {
+                subTypeFolder = 'validationRules'
+                subtypeExtension = 'validationRule'
+              } else if (metadataType === 'SharingReason') {
+                subTypeFolder = 'sharingReasons'
+                subtypeExtension = 'sharingReason'
+              } else if (metadataType === 'ListView') {
+                subTypeFolder = 'listViews'
+                subtypeExtension = 'listView'
+              } else if (metadataType === 'FieldSet') {
+                subTypeFolder = 'fieldSets'
+                subtypeExtension = 'fieldSet'
+              } else if (metadataType === 'Index') {
+                subTypeFolder = 'indexes'
+                subtypeExtension = 'index'
+              } else if (metadataType === 'BusinessProcess') {
+                subTypeFolder = 'businessProcesses'
+                subtypeExtension = 'businessProcess'
+              }
+
+              deleteCmd = `sfdx force:source:delete -u ${flags.username} -p ${flags.projectpath}/objects/${objectName}/${subTypeFolder}/${subTypeName}.${subtypeExtension}-meta.xml --noprompt`
             } else {
               deleteCmd = `sfdx force:source:delete -m ${metadataType}:${metadataName} -u ${flags.username} --noprompt`
             }
