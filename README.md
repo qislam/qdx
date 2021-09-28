@@ -19,7 +19,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/1.1.0 darwin-x64 node-v10.13.0
+qdx/1.2.0 darwin-x64 node-v10.13.0
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -29,7 +29,6 @@ USAGE
 # Commands
 <!-- commands -->
 * [`qdx data`](#qdx-data)
-* [`qdx deploy`](#qdx-deploy)
 * [`qdx help [COMMAND]`](#qdx-help-command)
 * [`qdx metapackage`](#qdx-metapackage)
 * [`qdx package PACKAGENAME [COMMIT1] [COMMIT2]`](#qdx-package-packagename-commit1-commit2)
@@ -56,30 +55,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.1.0/src/commands/data.js)_
-
-## `qdx deploy`
-
-Describe the command here
-
-```
-Describe the command here
-...
-Extra documentation goes here
-
-
-USAGE
-  $ qdx deploy
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v1.1.0/src/commands/deploy.js)_
+_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/data.js)_
 
 ## `qdx help [COMMAND]`
 
@@ -121,7 +97,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.1.0/src/commands/metapackage.js)_
+_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/metapackage.js)_
 
 ## `qdx package PACKAGENAME [COMMIT1] [COMMIT2]`
 
@@ -145,6 +121,7 @@ OPTIONS
   -u, --username=username
   --checkonly                Set to true for deployment validation
   --csv                      Build metadata components based on a csv file.
+  --delete                   Delete the specific components listed in the yaml file.
   --diff                     Build metadata components by running a diff.
   --dir                      Build metadata components based on directory contents.
   --fill                     Set to true to include all metadata for types listed in yaml.
@@ -152,6 +129,7 @@ OPTIONS
   --installedpackage
   --projectpath=projectpath  Base path for the project code.
   --version=version          API version to use for SFDX
+  --xml                      Build metadata components based on a xml file.
   --yaml                     Build metadata components based on a yml file.
 
 DESCRIPTION
@@ -159,7 +137,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.1.0/src/commands/package.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/package.js)_
 
 ## `qdx puppeteer`
 
@@ -182,5 +160,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.1.0/src/commands/puppeteer.js)_
+_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/puppeteer.js)_
 <!-- commandsstop -->
