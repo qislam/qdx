@@ -1,7 +1,7 @@
 {
   "name": "qdx",
   "description": "Salesforce command line for deployments",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "author": "Qamar Islam @qislam",
   "bin": {
     "qdx": "./bin/run"

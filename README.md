@@ -19,7 +19,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/1.2.0 darwin-x64 node-v10.13.0
+qdx/1.3.0 darwin-x64 node-v10.13.0
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -56,7 +56,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/data.js)_
+_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/data.js)_
 
 ## `qdx help [COMMAND]`
 
@@ -98,7 +98,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/metapackage.js)_
+_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/metapackage.js)_
 
 ## `qdx package PACKAGENAME [COMMIT1] [COMMIT2]`
 
@@ -138,7 +138,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/package.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/package.js)_
 
 ## `qdx puppeteer`
 
@@ -161,7 +161,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/puppeteer.js)_
+_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/puppeteer.js)_
 
 ## `qdx snippet`
 
@@ -177,12 +177,14 @@ USAGE
   $ qdx snippet
 
 OPTIONS
-  -n, --name=name  name to print
+  -a, --alias=alias  (required) Alias for the snippet
+  -h, --help         show CLI help
+  -p, --path=path    (required) Path to file that needs to be converted to snippet.
 
 DESCRIPTION
   ...
   Extra documentation goes here
 ```
 
-_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/snippet.js)_
+_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/snippet.js)_
 <!-- commandsstop -->
