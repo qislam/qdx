@@ -33,6 +33,7 @@ USAGE
 * [`qdx metapackage`](#qdx-metapackage)
 * [`qdx package PACKAGENAME [COMMIT1] [COMMIT2]`](#qdx-package-packagename-commit1-commit2)
 * [`qdx puppeteer`](#qdx-puppeteer)
+* [`qdx snippet`](#qdx-snippet)
 
 ## `qdx data`
 
@@ -161,4 +162,27 @@ DESCRIPTION
 ```
 
 _See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/puppeteer.js)_
+
+## `qdx snippet`
+
+Describe the command here
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx snippet
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.2.0/src/commands/snippet.js)_
 <!-- commandsstop -->
