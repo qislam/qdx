@@ -1,6 +1,5 @@
 const {Command, flags} = require('@oclif/command')
 const debug = require('debug')('qdx:deploy')
-const puppeteer = require('puppeteer')
 
 class DeployCommand extends Command {
   async run() {
