@@ -19,7 +19,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/1.3.0 darwin-x64 node-v10.13.0
+qdx/1.3.1 darwin-x64 node-v10.13.0
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -29,10 +29,10 @@ USAGE
 # Commands
 <!-- commands -->
 * [`qdx data`](#qdx-data)
+* [`qdx deploy`](#qdx-deploy)
 * [`qdx help [COMMAND]`](#qdx-help-command)
 * [`qdx metapackage`](#qdx-metapackage)
 * [`qdx package PACKAGENAME [COMMIT1] [COMMIT2]`](#qdx-package-packagename-commit1-commit2)
-* [`qdx puppeteer`](#qdx-puppeteer)
 * [`qdx snippet`](#qdx-snippet)
 
 ## `qdx data`
@@ -56,7 +56,30 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/data.js)_
+_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/data.js)_
+
+## `qdx deploy`
+
+Describe the command here
+
+```
+Describe the command here
+...
+Extra documentation goes here
+
+
+USAGE
+  $ qdx deploy
+
+OPTIONS
+  -n, --name=name  name to print
+
+DESCRIPTION
+  ...
+  Extra documentation goes here
+```
+
+_See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/deploy.js)_
 
 ## `qdx help [COMMAND]`
 
@@ -98,7 +121,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/metapackage.js)_
+_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/metapackage.js)_
 
 ## `qdx package PACKAGENAME [COMMIT1] [COMMIT2]`
 
@@ -138,30 +161,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/package.js)_
-
-## `qdx puppeteer`
-
-Describe the command here
-
-```
-Describe the command here
-...
-Extra documentation goes here
-
-
-USAGE
-  $ qdx puppeteer
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/puppeteer.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/puppeteer.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/package.js)_
 
 ## `qdx snippet`
 
@@ -186,5 +186,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.3.0/src/commands/snippet.js)_
+_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/snippet.js)_
 <!-- commandsstop -->
