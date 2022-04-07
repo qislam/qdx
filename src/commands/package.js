@@ -24,7 +24,7 @@ class PackageCommand extends Command {
     const yamlPath = `manifest/${args.packageName.replace('/', '-')}.yml`
     const projectpath = flags.projectpath || '.'
     debug('projectpath: ' + projectpath)
-    let apiVersion = flags.version || '52.0'
+    let apiVersion = flags.version || '53.0'
 
     const objectSubtypes = [
       'CustomField',
