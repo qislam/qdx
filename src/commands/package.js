@@ -22,7 +22,7 @@ class PackageCommand extends Command {
     cli.action.start('Started on package ' + args.packageName)
 
     const yamlPath = `manifest/${args.packageName.replace('/', '-')}.yml`
-    const projectpath = flags.projectpath || 'force-app/main/default'
+    const projectpath = flags.projectpath || '.'
     debug('projectpath: ' + projectpath)
     let apiVersion = flags.version || '52.0'
 
@@ -115,6 +115,22 @@ class PackageCommand extends Command {
         return
       }
       this.log(getTimeStamp() + '\tPreparing metadata list from diff. COMPLETED')
+    }
+
+    if (flags.diffwithbase) {
+      this.log(getTimeStamp() + '\tPreparing metadata list from diff with base. STARTED')
+      const baseCommit = await execa('git', ['merge-base', 'HEAD', flags.diffwithbase])
+      debug('baseCommit: ' + JSON.stringify(baseCommit, null, 4))
+      const diffResult = await execa('git', ['diff', '--name-only', 'HEAD', baseCommit.stdout])
+      const diffPaths = diffResult.stdout.split('\n')
+      debug('diffPaths: \n' + JSON.stringify(diffPaths, null, 4))
+      try {
+        updateYaml(diffPaths, yamlBody, projectpath)
+      } catch (error) {
+        cli.action.stop('Error: ' + error)
+        return
+      }
+      this.log(getTimeStamp() + '\tPreparing metadata list from diff with base. COMPLETED')
     }
 
     if (flags.dir) {
@@ -361,6 +377,7 @@ PackageCommand.flags = {
   help: flags.help({char: 'h'}),
   start: flags.boolean({char: 's', description: 'Start a new package. Will create YAML file if not already exist.'}),
   diff: flags.boolean({description: 'Build metadata components by running a diff.'}),
+  diffwithbase: flags.string({description: 'Components added in current branch based on diff with base.'}),
   dir: flags.boolean({description: 'Build metadata components based on directory contents.'}),
   csv: flags.boolean({description: 'Build metadata components based on a csv file.'}),
   yaml: flags.boolean({description: 'Build metadata components based on a yml file.'}),
