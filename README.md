@@ -11,6 +11,7 @@ Salesforce command line for deployments
 <!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
+* [To Start a new package](#to-start-a-new-package)
 <!-- tocstop -->
 # Usage
 <!-- usage -->
@@ -19,7 +20,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/1.3.1 darwin-x64 node-v10.13.0
+qdx/1.4.0 darwin-x64 node-v10.13.0
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -28,58 +29,9 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`qdx data`](#qdx-data)
-* [`qdx deploy`](#qdx-deploy)
 * [`qdx help [COMMAND]`](#qdx-help-command)
-* [`qdx metapackage`](#qdx-metapackage)
 * [`qdx package PACKAGENAME [COMMIT1] [COMMIT2]`](#qdx-package-packagename-commit1-commit2)
 * [`qdx snippet`](#qdx-snippet)
-
-## `qdx data`
-
-Describe the command here
-
-```
-Describe the command here
-...
-Extra documentation goes here
-
-
-USAGE
-  $ qdx data
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/data.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/data.js)_
-
-## `qdx deploy`
-
-Describe the command here
-
-```
-Describe the command here
-...
-Extra documentation goes here
-
-
-USAGE
-  $ qdx deploy
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/deploy.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/deploy.js)_
 
 ## `qdx help [COMMAND]`
 
@@ -100,29 +52,6 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
 
-## `qdx metapackage`
-
-Describe the command here
-
-```
-Describe the command here
-...
-Extra documentation goes here
-
-
-USAGE
-  $ qdx metapackage
-
-OPTIONS
-  -n, --name=name  name to print
-
-DESCRIPTION
-  ...
-  Extra documentation goes here
-```
-
-_See code: [src/commands/metapackage.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/metapackage.js)_
-
 ## `qdx package PACKAGENAME [COMMIT1] [COMMIT2]`
 
 To build a package to use with sfdx retrieve/deploy commands.
@@ -130,38 +59,40 @@ To build a package to use with sfdx retrieve/deploy commands.
 ```
 To build a package to use with sfdx retrieve/deploy commands.
 ...
-Extra documentation goes here
+# To Start a new package
+qdx package [packageName] --start
 
 
 USAGE
   $ qdx package PACKAGENAME [COMMIT1] [COMMIT2]
 
 OPTIONS
-  -d, --deploy               Deploys source already retrieved.
-  -h, --help                 show CLI help
-  -p, --path=path            Path to app directory or csv file.
-  -r, --retrieve             Retrieve source based on YAML configuration.
-  -s, --start                Start a new package. Will create YAML file if not already exist.
+  -d, --deploy                 Deploys source already retrieved.
+  -h, --help                   show CLI help
+  -p, --path=path              Path to app directory or csv file.
+  -r, --retrieve               Retrieve source based on YAML configuration.
+  -s, --start                  Start a new package. Will create YAML file if not already exist.
   -u, --username=username
-  --checkonly                Set to true for deployment validation
-  --csv                      Build metadata components based on a csv file.
-  --delete                   Delete the specific components listed in the yaml file.
-  --diff                     Build metadata components by running a diff.
-  --dir                      Build metadata components based on directory contents.
-  --fill                     Set to true to include all metadata for types listed in yaml.
-  --full                     Set to true to get a complete list of all metadata available.
+  --checkonly                  Set to true for deployment validation
+  --csv                        Build metadata components based on a csv file.
+  --delete                     Delete the specific components listed in the yaml file.
+  --diff                       Build metadata components by running a diff.
+  --diffwithbase=diffwithbase  Components added in current branch based on diff with base.
+  --dir                        Build metadata components based on directory contents.
+  --fill                       Set to true to include all metadata for types listed in yaml.
+  --full                       Set to true to get a complete list of all metadata available.
   --installedpackage
-  --projectpath=projectpath  Base path for the project code.
-  --version=version          API version to use for SFDX
-  --xml                      Build metadata components based on a xml file.
-  --yaml                     Build metadata components based on a yml file.
+  --projectpath=projectpath    Base path for the project code.
+  --version=version            API version to use for SFDX
+  --yaml                       Build metadata components based on a yml file.
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  # To Start a new package
+  qdx package [packageName] --start
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/package.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.4.0/src/commands/package.js)_
 
 ## `qdx snippet`
 
@@ -186,5 +117,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.3.1/src/commands/snippet.js)_
+_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.4.0/src/commands/snippet.js)_
 <!-- commandsstop -->
