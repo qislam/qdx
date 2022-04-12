@@ -85,21 +85,6 @@ class PackageCommand extends Command {
       this.log(getTimeStamp() + '\tPreparing metadata list from yaml. COMPLETED')
     }
 
-    if (flags.xml) {
-      this.log('Preparing metadata list from xml. STARTED')
-      if (!flags.path) {
-        cli.action.stop('File not not provided. Must be relative to current directory')
-      }
-      if (!fs.existsSync(getAbsolutePath(flags.path))) {
-        cli.action.stop('File not found. Check file path. Must be relative to current directory')
-      }
-      const xmlBody = fs.readFileSync(flags.path, 'utf-8')
-      this.log(xmljs.xml2json(xmlBody, {compact: true, spaces: 4}))
-      this.log(xmljs.xml2json(xmlBody, {compact: false, spaces: 4}))
-
-      this.log(getTimeStamp() + '\tPreparing metadata list from xml. COMPLETED')
-    }
-
     if (flags.diff) {
       this.log(getTimeStamp() + '\tPreparing metadata list from diff. STARTED')
       if (!args.commit1 || !args.commit2) {
@@ -370,7 +355,8 @@ class PackageCommand extends Command {
 
 PackageCommand.description = `To build a package to use with sfdx retrieve/deploy commands.
 ...
-Extra documentation goes here
+# To Start a new package
+qdx package [packageName] --start
 `
 
 PackageCommand.flags = {
@@ -381,7 +367,6 @@ PackageCommand.flags = {
   dir: flags.boolean({description: 'Build metadata components based on directory contents.'}),
   csv: flags.boolean({description: 'Build metadata components based on a csv file.'}),
   yaml: flags.boolean({description: 'Build metadata components based on a yml file.'}),
-  xml: flags.boolean({description: 'Build metadata components based on a xml file.'}),
   path: flags.string({char: 'p', description: 'Path to app directory or csv file.'}),
   version: flags.string({description: 'API version to use for SFDX'}),
   retrieve: flags.boolean({char: 'r', description: 'Retrieve source based on YAML configuration.'}),
