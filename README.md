@@ -11,7 +11,6 @@ Salesforce command line for deployments
 <!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
-* [To Start a new package](#to-start-a-new-package)
 <!-- tocstop -->
 # Usage
 <!-- usage -->
@@ -20,7 +19,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/1.4.0 darwin-x64 node-v10.13.0
+qdx/1.4.1 darwin-x64 node-v10.13.0
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -38,8 +37,6 @@ USAGE
 display help for qdx
 
 ```
-display help for <%= config.bin %>
-
 USAGE
   $ qdx help [COMMAND]
 
@@ -50,19 +47,13 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.18/src/commands/help.ts)_
 
 ## `qdx package PACKAGENAME [COMMIT1] [COMMIT2]`
 
 To build a package to use with sfdx retrieve/deploy commands.
 
 ```
-To build a package to use with sfdx retrieve/deploy commands.
-...
-# To Start a new package
-qdx package [packageName] --start
-
-
 USAGE
   $ qdx package PACKAGENAME [COMMIT1] [COMMIT2]
 
@@ -92,18 +83,13 @@ DESCRIPTION
   qdx package [packageName] --start
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.4.0/src/commands/package.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.4.1/src/commands/package.js)_
 
 ## `qdx snippet`
 
 Describe the command here
 
 ```
-Describe the command here
-...
-Extra documentation goes here
-
-
 USAGE
   $ qdx snippet
 
@@ -117,5 +103,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.4.0/src/commands/snippet.js)_
+_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.4.1/src/commands/snippet.js)_
 <!-- commandsstop -->
