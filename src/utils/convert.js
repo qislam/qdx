@@ -1,3 +1,11 @@
+const debug = require('debug')('qdx')
+const path = require('path')
+const fs = require('fs')
+const YAML = require('yaml')
+const xmljs = require('xml-js')
+const execa = require('execa')
+const _ = require('lodash')
+
 function xml2yaml(featureXML, featureYAML) {
   
 }
