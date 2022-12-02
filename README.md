@@ -19,7 +19,7 @@ $ npm install -g qdx
 $ qdx COMMAND
 running command...
 $ qdx (-v|--version|version)
-qdx/1.4.3 darwin-x64 node-v16.11.1
+qdx/1.4.4 darwin-x64 node-v16.11.1
 $ qdx --help [COMMAND]
 USAGE
   $ qdx COMMAND
@@ -83,7 +83,7 @@ DESCRIPTION
   qdx package [packageName] --start
 ```
 
-_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.4.3/src/commands/package.js)_
+_See code: [src/commands/package.js](https://github.com/qislam/qdx/blob/v1.4.4/src/commands/package.js)_
 
 ## `qdx snippet`
 
@@ -103,5 +103,5 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.4.3/src/commands/snippet.js)_
+_See code: [src/commands/snippet.js](https://github.com/qislam/qdx/blob/v1.4.4/src/commands/snippet.js)_
 <!-- commandsstop -->
